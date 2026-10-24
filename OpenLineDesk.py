@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from tkinter import ttk, filedialog, messagebox
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 DEFAULT_UPDATE_FEED = "https://github.com/quanmtarbx/OpenLine/releases/latest/download/update-manifest.json"
 CFG = Path.home()/".openline-desk"/"settings.json"
 PROGRAMS = ["Default service","(1) Weekday service","(2) Regular service","(4) Regular service","(5) Regular service","(6) Weekday service"]
@@ -16,7 +16,7 @@ def write_cfg(d):
 def files(root, suffixes):
     if not str(root).strip(): return []
     p=Path(root)
-    return sorted((x for x in p.rglob("*") if x.is_file() and x.suffix.lower() in suffixes),key=lambda x:str(x).lower()) if p.is_dir() else []
+    return sorted((x for x in p.rglob("*") if x.is_file() and x.suffix.lower() in suffixes and not any(part.casefold()=="object" for part in x.relative_to(p).parts[:-1])),key=lambda x:str(x).lower()) if p.is_dir() else []
 def trains(root):
     if not str(root).strip(): return []
     p=Path(root)
@@ -191,7 +191,7 @@ class Desk(tk.Tk):
     if not e or not e.is_file():
         messagebox.showinfo("Multiplayer build needed","Choose the OpenBVE Multiplayer OpenBve.exe from its installation.");return
     if not detect_multiplayer_files(e):
-        messagebox.showerror("Not a multiplayer installation","This folder is missing Multiplayer.dll or Server\Server.exe. Choose the OpenBVE Multiplayer installation, not standard OpenBVE.");return
+        messagebox.showerror("Not a multiplayer installation","This folder is missing Multiplayer.dll or Server/Server.exe. Choose the OpenBVE Multiplayer installation, not standard OpenBVE.");return
     self.cfg["mp_exe"]=str(e);write_cfg(self.cfg);self.save(True)
     try:
         subprocess.Popen([str(e)],cwd=str(e.parent))
@@ -403,6 +403,7 @@ class Conductor(tk.Toplevel):
     if self.i<len(self.stops)-1:self.i+=1;self.show()
 
 if __name__=="__main__":Desk().mainloop()
+
 
 
 

@@ -30,7 +30,7 @@ jobs:
           $stage = Join-Path $env:RUNNER_TEMP 'OpenLineDesk-release'
           $dist = Join-Path $env:RUNNER_TEMP 'OpenLineDesk-dist'
           New-Item -ItemType Directory -Force $stage, $dist | Out-Null
-          Set-Content -Path (Join-Path $stage 'OpenLineDesk.py') -Value $source -Encoding utf8
+          Copy-Item OpenLineDesk.py (Join-Path $stage 'OpenLineDesk.py')
           Copy-Item Start-OpenLine.bat, README.md -Destination $stage
           Copy-Item LICENSE (Join-Path $stage 'LICENSE.txt')
           $zip = Join-Path $dist "OpenLineDesk-$version-Windows.zip"

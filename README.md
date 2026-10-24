@@ -1,10 +1,10 @@
-# OpenLine Desk 0.3.1
+# OpenLine Desk 0.3.2
 
 OpenLine Desk is a Windows launcher and run-planning companion for OpenBVE. Its Drive page brings route/train selection and previews together, with separate pages for multiplayer sessions, content, settings, and help.
 
 ## Start it on Windows
 
-1. Download and extract `OpenLineDesk-0.3.1-Windows.zip` to a normal folder (do not run it inside WinRAR's temporary preview).
+1. Download and extract `OpenLineDesk-0.3.2-Windows.zip` to a normal folder (do not run it inside WinRAR's temporary preview).
 2. Double-click `Start-OpenLine.bat`.
 3. The starter uses installed Python with Tkinter. If none is available, it downloads a private Python runtime for OpenLine Desk.
 4. In **Content**, choose the OpenBVE `Railway\Route` and `Train` folders. In **Settings**, choose `OpenBve.exe`.
