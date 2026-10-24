@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from tkinter import ttk, filedialog, messagebox
 
-VERSION = "0.3.2"
+VERSION = "0.3.3"
 DEFAULT_UPDATE_FEED = "https://github.com/quanmtarbx/OpenLine/releases/latest/download/update-manifest.json"
 CFG = Path.home()/".openline-desk"/"settings.json"
 PROGRAMS = ["Default service","(1) Weekday service","(2) Regular service","(4) Regular service","(5) Regular service","(6) Weekday service"]
@@ -62,18 +62,23 @@ def detect_multiplayer_exe():
 
 class Desk(tk.Tk):
  def __init__(self):
-    super().__init__(); self.cfg=read_cfg(); self.title("OpenLine Desk · OpenBVE companion"); self.geometry("1240x820"); self.minsize(960,680); self.configure(bg="#10171e")
-    s=ttk.Style(self); s.theme_use("clam"); s.configure("TFrame",background="#10171e"); s.configure("Card.TFrame",background="#1b252e")
-    s.configure("TLabel",background="#10171e",foreground="#e8eef3",font=("Segoe UI",10)); s.configure("Muted.TLabel",background="#1b252e",foreground="#93a5b4",font=("Segoe UI",9))
-    s.configure("Title.TLabel",background="#10171e",foreground="#edf4f7",font=("Segoe UI Semibold",23)); s.configure("Sub.TLabel",background="#10171e",foreground="#a3b3be",font=("Segoe UI",10))
-    s.configure("TButton",font=("Segoe UI Semibold",10),padding=(11,8),background="#243544",foreground="#eaf1f5",borderwidth=0); s.map("TButton",background=[("active","#344d60")])
-    s.configure("Accent.TButton",background="#e4a94a",foreground="#15202a"); s.map("Accent.TButton",background=[("active","#f3bd64")])
-    s.configure("TCombobox",fieldbackground="#17222c",background="#17222c",foreground="#edf4f7",arrowcolor="#f0a64a",padding=7); s.map("TCombobox",fieldbackground=[("readonly","#17222c"),("disabled","#17222c"),("focus","#17222c")],foreground=[("readonly","#edf4f7"),("disabled","#82919b")]); s.configure("TEntry",fieldbackground="#17222c",foreground="#edf4f7",insertcolor="#edf4f7",padding=7)
-    s.configure("Treeview",background="#0c141d",foreground="#e8eef3",fieldbackground="#0c141d",rowheight=26); s.configure("Treeview.Heading",background="#1c2a36",foreground="#b9c9d3")
+    super().__init__(); self.cfg=read_cfg(); self.title("OpenLine Desk · OpenBVE companion"); self.geometry("1360x900"); self.minsize(1050,720); self.configure(bg="#0b1219")
+    self.palette={"bg":"#0b1219","nav":"#111c26","card":"#14212c","card2":"#192936","input":"#0d1821","text":"#edf3f7","muted":"#a0b1bd","quiet":"#708493","accent":"#e9a84d","accent_hover":"#f4bd6c","line":"#263947","green":"#61c59b"}
+    s=ttk.Style(self); s.theme_use("clam"); s.configure("TFrame",background=self.palette["bg"]); s.configure("Card.TFrame",background=self.palette["card"],borderwidth=1,relief="solid")
+    s.configure("TLabel",background=self.palette["bg"],foreground=self.palette["text"],font=("Segoe UI",10)); s.configure("Muted.TLabel",background=self.palette["card"],foreground=self.palette["muted"],font=("Segoe UI",9)); s.configure("Quiet.TLabel",background=self.palette["bg"],foreground=self.palette["quiet"],font=("Segoe UI",9))
+    s.configure("Title.TLabel",background=self.palette["bg"],foreground=self.palette["text"],font=("Segoe UI Semibold",27)); s.configure("Sub.TLabel",background=self.palette["bg"],foreground=self.palette["muted"],font=("Segoe UI",10)); s.configure("Eyebrow.TLabel",background=self.palette["bg"],foreground=self.palette["accent"],font=("Segoe UI Semibold",9))
+    s.configure("TButton",font=("Segoe UI Semibold",10),padding=(12,9),background=self.palette["card2"],foreground=self.palette["text"],borderwidth=0,focuscolor=self.palette["accent"]); s.map("TButton",background=[("active","#284052"),("pressed","#203544")],foreground=[("disabled",self.palette["quiet"])])
+    s.configure("Accent.TButton",background=self.palette["accent"],foreground="#15202a",padding=(16,11),font=("Segoe UI Semibold",10)); s.map("Accent.TButton",background=[("active",self.palette["accent_hover"]),("pressed","#d58e32")])
+    s.configure("Nav.TButton",font=("Segoe UI Semibold",10),padding=(13,11),anchor="w",background=self.palette["nav"],foreground="#a9bac5"); s.map("Nav.TButton",background=[("active","#1a2a37")],foreground=[("active",self.palette["text"])])
+    s.configure("NavActive.TButton",font=("Segoe UI Semibold",10),padding=(13,11),anchor="w",background="#253746",foreground=self.palette["accent"]); s.map("NavActive.TButton",background=[("active","#2a4050")],foreground=[("active",self.palette["accent_hover"])])
+    s.configure("TCombobox",fieldbackground=self.palette["input"],background=self.palette["input"],foreground=self.palette["text"],arrowcolor=self.palette["accent"],padding=8); s.map("TCombobox",fieldbackground=[("readonly",self.palette["input"]),("disabled",self.palette["input"]),("focus",self.palette["input"])],foreground=[("readonly",self.palette["text"]),("disabled",self.palette["quiet"])])
+    s.configure("TEntry",fieldbackground=self.palette["input"],foreground=self.palette["text"],insertcolor=self.palette["text"],padding=8)
+    s.configure("Treeview",background=self.palette["input"],foreground=self.palette["text"],fieldbackground=self.palette["input"],rowheight=31,borderwidth=0); s.map("Treeview",background=[("selected","#284052")],foreground=[("selected",self.palette["text"])])
+    s.configure("Treeview.Heading",background=self.palette["card2"],foreground="#b9c9d3",font=("Segoe UI Semibold",9),padding=(8,8)); s.map("Treeview.Heading",background=[("active","#243847")])
     self.rr=tk.StringVar(value=self.cfg.get("route_root","")); self.tr=tk.StringVar(value=self.cfg.get("train_root","")); self.ex=tk.StringVar(value=self.cfg.get("exe",""))
     self.routes=[]; self.trainlist=[]; self.rm={}; self.tm={}; self.build(); self.after(300,self.refresh); self.after(700,self.checks)
  def section(self,p,title,sub):
-    f=ttk.Frame(p); f.pack(fill="x",pady=(10,8)); ttk.Label(f,text=title,foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w"); ttk.Label(f,text=sub,style="Sub.TLabel").pack(anchor="w",pady=(2,0))
+    f=ttk.Frame(p); f.pack(fill="x",pady=(10,8)); ttk.Label(f,text=title,foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w"); ttk.Label(f,text=sub,style="Sub.TLabel").pack(anchor="w",pady=(2,0))
  def card(self,p,manager="pack"):
     f=ttk.Frame(p,style="Card.TFrame")
     if manager=="pack": f.pack(fill="x")
@@ -83,64 +88,73 @@ class Desk(tk.Tk):
     self.prog=tk.StringVar(value=PROGRAMS[0]); self.day=tk.StringVar(value=datetime.now().strftime("%Y-%m-%d"))
     self.tmval=tk.StringVar(value="08:00"); self.sched=tk.StringVar(value="OpenBVE route default"); self.cond=tk.BooleanVar()
     shell=ttk.Frame(self); shell.pack(fill="both",expand=True)
-    nav=ttk.Frame(shell,style="Card.TFrame",width=190); nav.pack(side="left",fill="y"); nav.pack_propagate(False)
-    ttk.Label(nav,text="OPENLINE",foreground="#f0a64a",background="#1b252e",font=("Segoe UI Semibold",14)).pack(anchor="w",padx=20,pady=(24,0))
-    ttk.Label(nav,text="DESK  ·  OPENBVE",foreground="#a3b3be",background="#1b252e",font=("Segoe UI",8)).pack(anchor="w",padx=20,pady=(2,22))
-    for label,page in (("▶   Drive","Drive"),("◎   Multiplayer","Multiplayer"),("▦   Content","Content"),("⚙   Settings","Settings"),("?   Help","Help")):
-        ttk.Button(nav,text=label,command=lambda p=page:self.show_page(p)).pack(fill="x",padx=12,pady=4)
-    ttk.Label(nav,text="OpenBVE companion\nVersion "+VERSION,foreground="#667987",background="#1b252e",font=("Segoe UI",8),justify="left").pack(side="bottom",anchor="w",padx=20,pady=18)
+    nav=tk.Frame(shell,bg=self.palette["nav"],width=224); nav.pack(side="left",fill="y"); nav.pack_propagate(False)
+    brand=tk.Frame(nav,bg=self.palette["nav"]); brand.pack(fill="x",padx=20,pady=(25,27))
+    tk.Label(brand,text="O",bg=self.palette["accent"],fg="#17222b",font=("Segoe UI Semibold",15),width=2,height=1).pack(side="left",ipady=3)
+    brandtext=tk.Frame(brand,bg=self.palette["nav"]); brandtext.pack(side="left",padx=10)
+    tk.Label(brandtext,text="OPENLINE",bg=self.palette["nav"],fg=self.palette["text"],font=("Segoe UI Semibold",14)).pack(anchor="w")
+    tk.Label(brandtext,text="DESK  /  OPENBVE",bg=self.palette["nav"],fg=self.palette["quiet"],font=("Segoe UI",8)).pack(anchor="w",pady=(1,0))
+    tk.Label(nav,text="WORKSPACE",bg=self.palette["nav"],fg=self.palette["quiet"],font=("Segoe UI Semibold",8)).pack(anchor="w",padx=20,pady=(0,8))
+    self.nav_buttons={}
+    for label,page in (("▰   Drive","Drive"),("◎   Multiplayer","Multiplayer"),("▤   Content","Content"),("⚙   Settings","Settings"),("?   Help","Help")):
+        button=ttk.Button(nav,text=label,style="Nav.TButton",command=lambda p=page:self.show_page(p));button.pack(fill="x",padx=11,pady=3);self.nav_buttons[page]=button
+    footer=tk.Frame(nav,bg=self.palette["nav"]);footer.pack(side="bottom",fill="x",padx=19,pady=19)
+    tk.Frame(footer,bg=self.palette["line"],height=1).pack(fill="x",pady=(0,12))
+    tk.Label(footer,text="OPENBVE COMPANION",bg=self.palette["nav"],fg=self.palette["quiet"],font=("Segoe UI Semibold",8)).pack(anchor="w")
+    tk.Label(footer,text="Version "+VERSION,bg=self.palette["nav"],fg=self.palette["muted"],font=("Segoe UI",9)).pack(anchor="w",pady=(3,0))
     self.page_host=ttk.Frame(shell); self.page_host.pack(side="left",fill="both",expand=True)
     self.mp_exe=tk.StringVar(value=self.cfg.get("mp_exe","") or detect_multiplayer_exe()); self.mp_name=tk.StringVar(value=""); self.mp_room=tk.StringVar(value="")
     self.pages={}; self.page_canvases={}; self._build_drive(); self._build_multiplayer(); self._build_content(); self._build_settings(); self._build_help()
     self.show_page("Drive")
  def _page(self,name):
     outer=ttk.Frame(self.page_host); self.pages[name]=outer
-    canvas=tk.Canvas(outer,bg="#10171e",highlightthickness=0); bar=ttk.Scrollbar(outer,orient="vertical",command=canvas.yview)
+    canvas=tk.Canvas(outer,bg="#0b1219",highlightthickness=0); bar=ttk.Scrollbar(outer,orient="vertical",command=canvas.yview)
     canvas.configure(yscrollcommand=bar.set); canvas.pack(side="left",fill="both",expand=True); bar.pack(side="right",fill="y")
-    p=ttk.Frame(canvas,padding=(28,24,28,20)); window=canvas.create_window((0,0),window=p,anchor="nw"); self.page_canvases[name]=canvas
+    p=ttk.Frame(canvas,padding=(34,27,34,26)); window=canvas.create_window((0,0),window=p,anchor="nw"); self.page_canvases[name]=canvas
     p.bind("<Configure>",lambda e,c=canvas:c.configure(scrollregion=c.bbox("all")))
     canvas.bind("<Configure>",lambda e,c=canvas,w=window:c.itemconfigure(w,width=e.width))
-    ttk.Label(p,text=name.upper(),foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w")
+    ttk.Label(p,text="OPENLINE DESK    /    "+name.upper(),style="Eyebrow.TLabel").pack(anchor="w",pady=(0,4))
     return p
  def _heading(self,p,title,subtitle):
     ttk.Label(p,text=title,style="Title.TLabel").pack(anchor="w",pady=(5,2))
     ttk.Label(p,text=subtitle,style="Sub.TLabel").pack(anchor="w",pady=(0,18))
  def show_page(self,name):
     for p in self.pages.values(): p.pack_forget()
+    for page,button in self.nav_buttons.items():button.configure(style=("NavActive.TButton" if page==name else "Nav.TButton"))
     self.pages[name].pack(fill="both",expand=True)
     if name=="Drive": self.update_previews(); self.checks()
  def _build_drive(self):
     p=self._page("Drive"); self._heading(p,"Ready for your next run?","Choose a route and train, plan the service, then start OpenBVE.")
-    row=ttk.Frame(p); row.pack(fill="x",pady=(0,12)); ttk.Button(row,text="▶   START DUTY IN OPENBVE",style="Accent.TButton",command=self.launch).pack(side="left"); ttk.Button(row,text="Conductor panel",command=self.conductor).pack(side="left",padx=8)
+    row=ttk.Frame(p); row.pack(fill="x",pady=(2,17)); ttk.Button(row,text="▶   START DUTY",style="Accent.TButton",command=self.launch).pack(side="left"); ttk.Button(row,text="CONDUCTOR",command=self.conductor).pack(side="left",padx=9); ttk.Button(row,text="CONTENT LIBRARY",command=lambda:self.show_page("Content")).pack(side="left")
     self.status=tk.StringVar(value="Choose content folders to begin"); ttk.Label(row,textvariable=self.status,style="Sub.TLabel").pack(side="right")
     self.route_hint=tk.StringVar(value="OpenBVE reads the route timetable data")
     top=ttk.Frame(p); top.pack(fill="both",expand=True); top.columnconfigure(0,weight=3); top.columnconfigure(1,weight=2); top.rowconfigure(0,weight=1)
     mapc=self.card(top,manager="grid"); mapc.grid(row=0,column=0,sticky="nsew",padx=(0,10))
-    ttk.Label(mapc,text="ROUTE MAP",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,6))
-    self.map_preview_image=tk.Label(mapc,text="Choose a route to preview its map",bg="#17222c",fg="#95a9b7",height=8); self.map_preview_image.pack(fill="both",expand=True,padx=12)
-    self.map_title=tk.StringVar(value="No route selected"); ttk.Label(mapc,textvariable=self.map_title,background="#1b252e",font=("Segoe UI Semibold",14)).pack(anchor="w",padx=14,pady=(9,1))
+    ttk.Label(mapc,text="01   ROUTE PREVIEW",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=16,pady=(14,7))
+    self.map_preview_image=tk.Label(mapc,text="Choose a route to preview its map",bg="#0d1821",fg="#95a9b7",height=8); self.map_preview_image.pack(fill="both",expand=True,padx=12)
+    self.map_title=tk.StringVar(value="No route selected"); ttk.Label(mapc,textvariable=self.map_title,background="#14212c",font=("Segoe UI Semibold",14)).pack(anchor="w",padx=14,pady=(9,1))
     ttk.Label(mapc,textvariable=self.route_hint,style="Muted.TLabel").pack(anchor="w",padx=14,pady=(0,6))
     ttk.Button(mapc,text="Choose map PNG…",command=self.choose_map_preview).pack(anchor="w",padx=14,pady=(0,10))
     tc=self.card(top,manager="grid"); tc.grid(row=0,column=1,sticky="nsew",padx=(10,0))
-    ttk.Label(tc,text="YOUR TRAIN",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,6))
-    self.train_preview_image=tk.Label(tc,text="Choose a train to preview it",bg="#17222c",fg="#95a9b7",height=8); self.train_preview_image.pack(fill="both",expand=True,padx=12)
-    self.train_title=tk.StringVar(value="No train selected"); ttk.Label(tc,textvariable=self.train_title,background="#1b252e",font=("Segoe UI Semibold",14)).pack(anchor="w",padx=14,pady=(9,1))
+    ttk.Label(tc,text="02   TRAIN PREVIEW",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=16,pady=(14,7))
+    self.train_preview_image=tk.Label(tc,text="Choose a train to preview it",bg="#0d1821",fg="#95a9b7",height=8); self.train_preview_image.pack(fill="both",expand=True,padx=12)
+    self.train_title=tk.StringVar(value="No train selected"); ttk.Label(tc,textvariable=self.train_title,background="#14212c",font=("Segoe UI Semibold",14)).pack(anchor="w",padx=14,pady=(9,1))
     ttk.Label(tc,text="PNG preview from the add-on or a selected image",style="Muted.TLabel",wraplength=320).pack(anchor="w",padx=14,pady=(0,6))
     ttk.Button(tc,text="Choose train PNG…",command=self.choose_train_preview).pack(anchor="w",padx=14,pady=(0,10))
-    self._heading(p,"Plan this service","Pick a route, train, program and timetable for your run.")
-    c=self.card(p); g=ttk.Frame(c,style="Card.TFrame"); g.pack(fill="x",padx=14,pady=10)
+    self._heading(p,"Build your duty","Select your route, train, timetable and service options.")
+    c=self.card(p); g=ttk.Frame(c,style="Card.TFrame"); g.pack(fill="x",padx=14,pady=(14,10))
     for i in range(2): g.columnconfigure(i,weight=1)
     self.rc=self.field(g,"ROUTE",self.r,0,0,[]); self.tc=self.field(g,"TRAIN",self.t,0,1,[])
     self.rc.bind("<<ComboboxSelected>>",lambda e:self.update_previews()); self.tc.bind("<<ComboboxSelected>>",lambda e:self.update_previews())
     self.field(g,"SERVICE PROGRAM",self.prog,1,0,PROGRAMS); self.schedule_combo=self.field(g,"OPENBVE TIMETABLE",self.sched,1,1,["OpenBVE route default"])
     self.field(g,"RUN DATE",self.day,2,0); self.field(g,"START TIME",self.tmval,2,1)
-    ttk.Label(c,text="OpenBVE builds the actual timetable from route data. Date, time and program are saved in your local run card.",style="Muted.TLabel",wraplength=850).pack(anchor="w",padx=16,pady=(0,10))
+    ttk.Label(c,text="Timetable options come from the selected route. Your date, start time and program are saved with this run.",style="Muted.TLabel",wraplength=850).pack(anchor="w",padx=16,pady=(0,13))
     row=ttk.Frame(c,style="Card.TFrame"); row.pack(fill="x",padx=14,pady=(0,12))
     ttk.Checkbutton(row,text="Open conductor companion with this run",variable=self.cond).pack(side="left"); ttk.Button(row,text="Save run card",command=self.save).pack(side="right")
  def _build_content(self):
     p=self._page("Content"); self._heading(p,"Your content library","Connect OpenBVE routes and trains. OpenLine scans for compatible files.")
     for label,var,cmd,hint in (("ROUTE LIBRARY",self.rr,self.pick_routes,"Usually the Railway\\Route folder"),("TRAIN LIBRARY",self.tr,self.pick_trains,"Usually the Train folder")):
-        c=self.card(p); ttk.Label(c,text=label,background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
+        c=self.card(p); ttk.Label(c,text=label,background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
         row=ttk.Frame(c,style="Card.TFrame"); row.pack(fill="x",padx=12); ttk.Entry(row,textvariable=var).pack(side="left",fill="x",expand=True,padx=(0,8)); ttk.Button(row,text="Browse…",command=cmd).pack(side="right")
         ttk.Label(c,text=hint,style="Muted.TLabel").pack(anchor="w",padx=14,pady=(5,12))
     ttk.Button(p,text="Refresh libraries",command=self.refresh).pack(anchor="w",pady=14)
@@ -148,23 +162,23 @@ class Desk(tk.Tk):
     c=self.card(p); self.tree=ttk.Treeview(c,columns=("state",),show="tree headings",height=7); self.tree.heading("#0",text="CHECK"); self.tree.heading("state",text="STATUS"); self.tree.column("#0",width=310); self.tree.column("state",width=150,anchor="center"); self.tree.pack(fill="x",padx=12,pady=12); ttk.Button(c,text="Run checks now",command=self.checks).pack(anchor="e",padx=12,pady=(0,12))
  def _build_settings(self):
     p=self._page("Settings"); self._heading(p,"Settings & updates","Choose the simulator and manage the OpenLine update channel.")
-    c=self.card(p); ttk.Label(c,text="OPENBVE APPLICATION",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
+    c=self.card(p); ttk.Label(c,text="OPENBVE APPLICATION",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
     row=ttk.Frame(c,style="Card.TFrame"); row.pack(fill="x",padx=12); ttk.Entry(row,textvariable=self.ex).pack(side="left",fill="x",expand=True,padx=(0,8)); ttk.Button(row,text="Browse…",command=self.pick_exe).pack(side="right")
     ttk.Label(c,text="Choose OpenBve.exe. The simulator is installed separately.",style="Muted.TLabel").pack(anchor="w",padx=14,pady=6)
     ttk.Button(c,text="Get OpenBVE 1.14.1.2",command=lambda:webbrowser.open("https://github.com/leezer3/OpenBVE/releases/download/1.14.1.2/OpenBVE-1.14.1.2-setup.exe")).pack(anchor="w",padx=14,pady=(0,12))
-    u=self.card(p); ttk.Label(u,text="IN-APP UPDATE CHANNEL",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5)); ttk.Entry(u,textvariable=self.update_feed).pack(fill="x",padx=12)
+    u=self.card(p); ttk.Label(u,text="IN-APP UPDATE CHANNEL",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5)); ttk.Entry(u,textvariable=self.update_feed).pack(fill="x",padx=12)
     self.update_status=tk.StringVar(value="Save a public HTTPS manifest URL to enable updates"); ttk.Label(u,textvariable=self.update_status,style="Muted.TLabel",wraplength=800).pack(anchor="w",padx=14,pady=6)
     row=ttk.Frame(u,style="Card.TFrame"); row.pack(fill="x",padx=12,pady=(0,12)); ttk.Button(row,text="Save channel",command=self.save_update_feed).pack(side="left"); ttk.Button(row,text="Check for updates",command=self.check_updates).pack(side="left",padx=8)
  def _build_multiplayer(self):
     p=self._page("Multiplayer"); self._heading(p,"OpenBVE Multiplayer","Open the multiplayer edition you installed and continue in its built-in multiplayer screen.")
-    c=self.card(p); ttk.Label(c,text="INSTALLED MULTIPLAYER APP",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
+    c=self.card(p); ttk.Label(c,text="INSTALLED MULTIPLAYER APP",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
     row=ttk.Frame(c,style="Card.TFrame"); row.pack(fill="x",padx=12); ttk.Entry(row,textvariable=self.mp_exe).pack(side="left",fill="x",expand=True,padx=(0,8)); ttk.Button(row,text="Browse…",command=self.pick_mp_exe).pack(side="right")
     self.mp_detect_status=tk.StringVar(value=("Multiplayer app detected · "+str(Path(self.mp_exe.get()).parent) if detect_multiplayer_files(self.mp_exe.get()) else "No multiplayer installation detected"))
     ttk.Label(c,textvariable=self.mp_detect_status,style="Muted.TLabel",wraplength=840).pack(anchor="w",padx=14,pady=6)
     row=ttk.Frame(c,style="Card.TFrame"); row.pack(fill="x",padx=12,pady=(2,12)); ttk.Button(row,text="Detect installed build",command=self.detect_mp).pack(side="left"); ttk.Button(row,text="Download multiplayer build",command=lambda:webbrowser.open("https://www.openbvenews.com/downloads/fetch/235")).pack(side="left",padx=8); ttk.Button(row,text="OPEN MULTIPLAYER",style="Accent.TButton",command=self.launch_multiplayer).pack(side="right")
-    c=self.card(p); ttk.Label(c,text="WHAT HAPPENS NEXT",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
+    c=self.card(p); ttk.Label(c,text="WHAT HAPPENS NEXT",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
     ttk.Label(c,text="OpenLine detects the installed OpenBVE Multiplayer app and opens its own start screen. Choose the multiplayer option there to host or join; server discovery and connection are handled by that app. OpenLine does not send made-up server command-line options.",style="Muted.TLabel",wraplength=840,justify="left").pack(anchor="w",padx=16,pady=(0,12))
-    c=self.card(p); ttk.Label(c,text="SHARE THIS RUN PLAN",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
+    c=self.card(p); ttk.Label(c,text="SHARE THIS RUN PLAN",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
     g=ttk.Frame(c,style="Card.TFrame"); g.pack(fill="x",padx=14,pady=(0,10)); g.columnconfigure(0,weight=1); g.columnconfigure(1,weight=1)
     self.field(g,"SESSION LABEL (OPTIONAL)",self.mp_room,0,0); self.field(g,"YOUR NAME (OPTIONAL)",self.mp_name,0,1)
     ttk.Label(c,text="Copy a run-plan note for other players. Select the same route, train, and add-on versions in the multiplayer app before you connect.",style="Muted.TLabel",wraplength=840).pack(anchor="w",padx=16,pady=(0,8))
@@ -199,9 +213,9 @@ class Desk(tk.Tk):
     except OSError as err:messagebox.showerror("Launch failed",f"Could not start the multiplayer build."+chr(10)+chr(10)+str(err))
  def _build_help(self):
     p=self._page("Help"); self._heading(p,"About OpenLine Desk","A community launcher, run planner, and multiplayer session companion for OpenBVE.")
-    c=self.card(p); ttk.Label(c,text="START A RUN",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
+    c=self.card(p); ttk.Label(c,text="START A RUN",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
     ttk.Label(c,text="Choose folders under Content, return to Drive, pick a route and train, then press Start Duty. Previews use PNGs in add-on folders. Choose a PNG manually if the add-on has no suitable image.",style="Muted.TLabel",wraplength=820,justify="left").pack(anchor="w",padx=14,pady=(0,12))
-    c=self.card(p); ttk.Label(c,text="OPENBVE INTEGRATION",background="#1b252e",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
+    c=self.card(p); ttk.Label(c,text="OPENBVE INTEGRATION",background="#14212c",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w",padx=14,pady=(12,5))
     ttk.Label(c,text="OpenLine starts OpenBVE with the selected route and train. Add-ons determine the timetable and program options supported by the simulator. Run date and time are saved on the run card; the conductor companion is a separate helper panel.",style="Muted.TLabel",wraplength=820,justify="left").pack(anchor="w",padx=14,pady=(0,12))
     ttk.Label(p,text="OpenLine Desk "+VERSION+"  ·  OpenBVE is a separate project",style="Sub.TLabel").pack(anchor="w",pady=16)
  def _image_for(self,widget,path,label):
@@ -271,7 +285,7 @@ class Desk(tk.Tk):
  def choose_train_preview(self):self._choose_preview("train")
  def choose_map_preview(self):self._choose_preview("map")
  def field(self,p,label,var,row,col,values=None):
-    x=ttk.Frame(p,style="Card.TFrame"); x.grid(row=row,column=col,sticky="ew",padx=(0 if col==0 else 12,8),pady=6); ttk.Label(x,text=label,background="#1b252e",foreground="#93a5b4",font=("Segoe UI Semibold",8)).pack(anchor="w",pady=(0,4)); w=ttk.Combobox(x,textvariable=var,values=values,state=("readonly" if values else "normal")) if values is not None else ttk.Entry(x,textvariable=var); w.pack(fill="x"); return w
+    x=ttk.Frame(p,style="Card.TFrame"); x.grid(row=row,column=col,sticky="ew",padx=(0 if col==0 else 12,8),pady=6); ttk.Label(x,text=label,background="#14212c",foreground="#93a5b4",font=("Segoe UI Semibold",8)).pack(anchor="w",pady=(0,4)); w=ttk.Combobox(x,textvariable=var,values=values,state=("readonly" if values else "normal")) if values is not None else ttk.Entry(x,textvariable=var); w.pack(fill="x"); return w
  def pick_routes(self):
     p=filedialog.askdirectory(title="Choose Railway\\Route folder")
     if p:self.rr.set(p);self.refresh()
@@ -329,7 +343,7 @@ class Desk(tk.Tk):
     threading.Thread(target=self._fetch_manifest,args=(url,),daemon=True).start()
  def _fetch_manifest(self,url):
     try:
-        req=urllib.request.Request(url,headers={"User-Agent":"OpenLineDesk-Updater/0.3.1"})
+        req=urllib.request.Request(url,headers={"User-Agent":"OpenLineDesk-Updater/0.3.3"})
         with urllib.request.urlopen(req,timeout=15) as response: data=json.loads(response.read(100000).decode("utf-8"))
         version=str(data.get("version","")); asset=str(data.get("asset_url","")); digest=str(data.get("sha256",""))
         nums=lambda v: tuple(int(x) for x in re.findall(r"\d+",v))
@@ -343,7 +357,7 @@ class Desk(tk.Tk):
     else:self.update_status.set(f"Update {version} is available")
  def _download_update(self,version,asset,digest):
     try:
-        with urllib.request.urlopen(urllib.request.Request(asset,headers={"User-Agent":"OpenLineDesk-Updater/0.3.1"}),timeout=30) as response: payload=response.read(10_000_001)
+        with urllib.request.urlopen(urllib.request.Request(asset,headers={"User-Agent":"OpenLineDesk-Updater/0.3.3"}),timeout=30) as response: payload=response.read(10_000_001)
         if len(payload)>10_000_000: raise ValueError("Update script is larger than the 10 MB safety limit.")
         if hashlib.sha256(payload).hexdigest().lower()!=digest.lower(): raise ValueError("The downloaded update did not match its SHA-256 checksum.")
         candidate=payload.decode("utf-8-sig")
@@ -360,11 +374,11 @@ class Desk(tk.Tk):
 class Conductor(tk.Toplevel):
  def __init__(self,master,route):
     super().__init__(master);self.title("OpenLine · Conductor desk");self.geometry("540x630");self.stops=self.get_stops(route);self.i=0
-    f=ttk.Frame(self,padding=20);f.pack(fill="both",expand=True);ttk.Label(f,text="CONDUCTOR COMPANION",foreground="#f0a64a",font=("Segoe UI Semibold",9)).pack(anchor="w");ttk.Label(f,text="Platform & onboard duties",style="Title.TLabel").pack(anchor="w",pady=5)
+    f=ttk.Frame(self,padding=20);f.pack(fill="both",expand=True);ttk.Label(f,text="CONDUCTOR COMPANION",foreground="#e9a84d",font=("Segoe UI Semibold",9)).pack(anchor="w");ttk.Label(f,text="Platform & onboard duties",style="Title.TLabel").pack(anchor="w",pady=5)
     ttk.Label(f,text="Station calls, platform checks and a run log. This sidecar cannot operate OpenBVE in-game doors or cameras.",style="Sub.TLabel",wraplength=500).pack(anchor="w",pady=(0,12))
-    c=ttk.Frame(f,style="Card.TFrame");c.pack(fill="x");self.name=tk.StringVar(value=self.stops[0] if self.stops else "Add a station below");ttk.Label(c,text="CURRENT STOP",style="Muted.TLabel").pack(anchor="w",padx=14,pady=(12,3));ttk.Label(c,textvariable=self.name,background="#1b252e",foreground="#f2bd66",font=("Segoe UI Semibold",21)).pack(anchor="w",padx=14,pady=(0,12))
+    c=ttk.Frame(f,style="Card.TFrame");c.pack(fill="x");self.name=tk.StringVar(value=self.stops[0] if self.stops else "Add a station below");ttk.Label(c,text="CURRENT STOP",style="Muted.TLabel").pack(anchor="w",padx=14,pady=(12,3));ttk.Label(c,textvariable=self.name,background="#14212c",foreground="#f2bd66",font=("Segoe UI Semibold",21)).pack(anchor="w",padx=14,pady=(0,12))
     row=ttk.Frame(f);row.pack(fill="x",pady=10);ttk.Button(row,text="‹ Previous",command=self.prev).pack(side="left");ttk.Button(row,text="Next stop ›",command=self.next).pack(side="left",padx=6);ttk.Button(row,text="Announce stop",style="Accent.TButton",command=self.announce).pack(side="right")
-    c=ttk.Frame(f,style="Card.TFrame");c.pack(fill="x");self.checked=tk.BooleanVar();ttk.Label(c,text="PLATFORM CHECK",foreground="#edf4f7",background="#1b252e").pack(anchor="w",padx=14,pady=(11,5));ttk.Checkbutton(c,text="Platform and train sides checked",variable=self.checked).pack(anchor="w",padx=14,pady=4);row=ttk.Frame(c,style="Card.TFrame");row.pack(fill="x",padx=14,pady=10);ttk.Button(row,text="Doors clear · close up",command=self.close).pack(side="left");ttk.Button(row,text="Depart",command=self.depart).pack(side="left",padx=6)
+    c=ttk.Frame(f,style="Card.TFrame");c.pack(fill="x");self.checked=tk.BooleanVar();ttk.Label(c,text="PLATFORM CHECK",foreground="#edf4f7",background="#14212c").pack(anchor="w",padx=14,pady=(11,5));ttk.Checkbutton(c,text="Platform and train sides checked",variable=self.checked).pack(anchor="w",padx=14,pady=4);row=ttk.Frame(c,style="Card.TFrame");row.pack(fill="x",padx=14,pady=10);ttk.Button(row,text="Doors clear · close up",command=self.close).pack(side="left");ttk.Button(row,text="Depart",command=self.depart).pack(side="left",padx=6)
     ttk.Label(f,text="STATION LIST · one per line",style="Muted.TLabel").pack(anchor="w",pady=(12,4));self.txt=tk.Text(f,height=6,bg="#0c141d",fg="#e8eef3",insertbackground="#e8eef3",relief="flat");self.txt.pack(fill="x");self.txt.insert("1.0","\n".join(self.stops));ttk.Button(f,text="Update station list",command=self.update).pack(anchor="e",pady=6)
     ttk.Label(f,text="ACTIVITY LOG",style="Muted.TLabel").pack(anchor="w");self.log=tk.Listbox(f,height=5,bg="#0c141d",fg="#c4d1d9",relief="flat",font=("Consolas",9));self.log.pack(fill="both",expand=True)
  def get_stops(self,r):
@@ -403,6 +417,7 @@ class Conductor(tk.Toplevel):
     if self.i<len(self.stops)-1:self.i+=1;self.show()
 
 if __name__=="__main__":Desk().mainloop()
+
 
 
 
